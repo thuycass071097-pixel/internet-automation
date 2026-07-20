@@ -1,0 +1,50 @@
+# Tên workflow — hiển thị trong tab "Actions" trên GitHub
+name: Playwright Tests
+
+# Trigger — workflow chạy khi nào
+on:
+  push:
+    branches: [main]        # Khi push lên nhánh main
+  pull_request:
+    branches: [main]        # Khi tạo PR nhắm vào nhánh main
+
+# Danh sách các jobs
+jobs:
+  test:                     # ID của job (đặt tên tùy ý, không dấu cách)
+    runs-on: ubuntu-latest  # Chạy trên máy Ubuntu do GitHub cung cấp miễn phí
+
+    steps:
+      # Bước 1: Kéo code từ repository về máy runner
+      - uses: actions/checkout@v4
+
+      # Bước 2: Cài đặt Node.js version 20
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Bước 3: Cài tất cả dependencies từ package-lock.json
+      # npm ci nhanh và nhất quán hơn npm install (không cập nhật lock file)
+      - name: Cài đặt dependencies
+        run: npm ci
+
+      # Bước 4: Cài Playwright browsers
+      # --with-deps: cài thêm system dependencies của Linux cần thiết
+      # chromium: chỉ cài Chromium để tiết kiệm thời gian (thay vì cả firefox, webkit)
+      - name: Cài Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      # Bước 5: Chạy toàn bộ Playwright tests
+      - name: Chạy Playwright tests
+        run: npx playwright test
+
+      # Bước 6: Upload HTML report lên GitHub
+      # if: always() — chạy bước này dù test pass hay fail
+      # artifact: file được lưu trữ, có thể download từ GitHub UI
+      # retention-days: 30 — xóa artifact sau 30 ngày
+      - name: Upload HTML Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
