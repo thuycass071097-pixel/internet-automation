@@ -1,1 +1,2 @@
 # internet-automation
+[![Playwright Tests](https://github.com/thuycass071097-pixel/internet-automation/actions/workflows/playwright.yml/badge.svg)](https://github.com/thuycass071097-pixel/internet-automation/actions/workflows/playwright.yml)
