@@ -7,7 +7,9 @@ module.exports = defineConfig({
   timeout: 30000,
 
   use: {
-    baseURL: 'https://the-internet.herokuapp.com',
+    baseURL: process.env.BASE_URL || 'https://the-internet.herokuapp.com',
+    username: process.env.USERNAME || '',
+    password: process.env.PASSWORD || '',
     screenshot: 'only-on-failure',
     video: 'on-first-retry',
     headless: true,
