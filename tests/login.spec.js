@@ -45,4 +45,11 @@ test.describe('Login Feature', () => {
     const flashText = await loginPage.getFlashMessage();
     expect(flashText).toContain('Your username is invalid');
   });
+
+  // Thêm 1 test sai vào tests/login.spec.js
+  test('TC_INTENTIONAL_FAIL — Test để kiểm tra AI pipeline', async ({ page }) => {
+  await loginPage.login(VALID_USERNAME, VALID_PASSWORD);
+  // Selector không tồn tại — sẽ fail
+  await expect(page.locator('#nonexistent-element-xyz')).toBeVisible();
+});
 });
