@@ -28,4 +28,10 @@ module.exports = defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
+
+  reporter: [
+  ['html'],
+  ['json', { outputFile: 'test-results.json' }],
+  ['list'],
+],
 });
