@@ -16,7 +16,17 @@ jobs:
     outputs:
       test_failed: ${{ steps.run_tests.outputs.failed }}
 
-    steps:
+    steps:    - name: Chạy Playwright tests
+      id: run_tests
+      continue-on-error: true
+      run: |
+        set +e
+        npx playwright test \
+          --reporter=list \
+          --reporter=json:test-results.json \
+          --reporter=html
+        status=$?
+        echo "failed=$status" >> $GITHUB_OUTPUT
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
