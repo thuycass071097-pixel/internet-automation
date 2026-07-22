@@ -35,10 +35,7 @@ jobs:
         continue-on-error: true
         run: |
           set +e
-          npx playwright test \
-            --reporter=list \
-            --reporter=json:test-results.json \
-            --reporter=html
+          npx playwright test
           status=$?
           set -e
           echo "failed=$status" >> $GITHUB_OUTPUT

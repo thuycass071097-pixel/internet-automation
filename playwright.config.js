@@ -17,11 +17,6 @@ module.exports = defineConfig({
     actionTimeout: 10000,
   },
 
-  reporter: [
-    ['html', { outputFolder: 'playwright-report', open: 'never' }],
-    ['list']
-  ],
-
   projects: [
     {
       name: 'chromium',
@@ -30,8 +25,8 @@ module.exports = defineConfig({
   ],
 
   reporter: [
-  ['html'],
-  ['json', { outputFile: 'test-results.json' }],
-  ['list'],
-],
+    ['html', { outputFolder: 'playwright-report', open: 'never' }],
+    ['json', { outputFile: 'test-results.json' }],
+    ['list'],
+  ],
 });
