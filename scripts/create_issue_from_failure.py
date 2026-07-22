@@ -42,6 +42,7 @@ def parse_playwright_results(results_file: str) -> list[dict]:
         data = json.load(f)
 
     failures = []
+    seen = set()
 
     def walk_suites(suites: list[dict], parent_suite: dict | None = None) -> None:
         for suite in suites:
@@ -60,6 +61,15 @@ def parse_playwright_results(results_file: str) -> list[dict]:
                             if not file_path:
                                 file_path = 'unknown'
 
+                            failure_key = (
+                                spec.get('title', 'Unknown test'),
+                                file_path,
+                                test.get('projectName', 'chromium'),
+                            )
+                            if failure_key in seen:
+                                continue
+
+                            seen.add(failure_key)
                             failures.append({
                                 'title': spec.get('title', 'Unknown test'),
                                 'file': file_path,
