@@ -4,7 +4,37 @@
 import json
 import os
 import subprocess
+from pathlib import Path
+
 import anthropic
+
+
+def find_results_file() -> str | None:
+    """Tìm file test-results.json ở các vị trí thường gặp sau khi download artifact."""
+    candidates = []
+
+    env_path = os.environ.get('PLAYWRIGHT_RESULTS_PATH')
+    if env_path:
+        candidates.append(env_path)
+
+    candidates.extend([
+        'test-results.json',
+        './test-results.json',
+        'artifacts/test-results.json',
+        'playwright-results/test-results.json',
+        'artifacts/playwright-results/test-results.json',
+    ])
+
+    for candidate in candidates:
+        if os.path.exists(candidate):
+            return candidate
+
+    for root, _, files in os.walk('.'):
+        if 'test-results.json' in files:
+            return str(Path(root) / 'test-results.json')
+
+    return None
+
 
 def parse_playwright_results(results_file: str) -> list[dict]:
     """Đọc test-results.json và trả về danh sách test failures."""
@@ -83,12 +113,13 @@ def create_github_issue(title: str, body: str, labels: list[str]) -> str:
 
 
 def main():
-    results_file = 'test-results.json'
+    results_file = find_results_file()
 
-    if not os.path.exists(results_file):
+    if not results_file:
         print("Không tìm thấy test-results.json")
         return
 
+    print(f"Đọc kết quả từ: {results_file}")
     failures = parse_playwright_results(results_file)
 
     if not failures:
