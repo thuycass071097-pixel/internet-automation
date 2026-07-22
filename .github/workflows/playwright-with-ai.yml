@@ -91,6 +91,14 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: python scripts/create_issue_from_failure.py
 
+      - name: Log debug info
+        if: always()
+        run: |
+          echo "needs.test.result = ${{ needs.test.result }}"
+          echo "needs.test.outputs.test_failed = ${{ needs.test.outputs.test_failed }}"
+          echo "github.ref_name = ${{ github.ref_name }}"
+          echo "github.sha = ${{ github.sha }}"
+
       - name: Post summary lên job
         if: always()
         run: |
