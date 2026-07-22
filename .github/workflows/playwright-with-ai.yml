@@ -34,12 +34,15 @@ jobs:
         # continue-on-error: true để job không dừng, job 2 vẫn chạy
         continue-on-error: true
         run: |
+          set +e
           npx playwright test \
             --reporter=list \
             --reporter=json:test-results.json \
             --reporter=html
-          # Lưu exit code vào output
-          echo "failed=$?" >> $GITHUB_OUTPUT
+          status=$?
+          set -e
+          echo "failed=$status" >> $GITHUB_OUTPUT
+          exit $status
 
       - name: Upload test artifacts
         if: always()   # Luôn upload dù pass hay fail
