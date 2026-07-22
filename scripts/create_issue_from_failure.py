@@ -38,22 +38,37 @@ def find_results_file() -> str | None:
 
 def parse_playwright_results(results_file: str) -> list[dict]:
     """Đọc test-results.json và trả về danh sách test failures."""
-    with open(results_file) as f:
+    with open(results_file, encoding='utf-8') as f:
         data = json.load(f)
 
     failures = []
-    for suite in data.get('suites', []):
-        for spec in suite.get('specs', []):
-            for test in spec.get('tests', []):
-                for result in test.get('results', []):
-                    if result['status'] == 'failed':
-                        failures.append({
-                            'title': spec['title'],
-                            'file': spec['file'],
-                            'error': result.get('error', {}).get('message', ''),
-                            'duration': result.get('duration', 0),
-                            'browser': test.get('projectName', 'chromium'),
-                        })
+
+    def walk_suites(suites: list[dict], parent_suite: dict | None = None) -> None:
+        for suite in suites:
+            current_suite = suite
+            child_suites = suite.get('suites', [])
+            if child_suites:
+                walk_suites(child_suites, suite)
+
+            for spec in suite.get('specs', []):
+                for test in spec.get('tests', []):
+                    for result in test.get('results', []):
+                        if result.get('status') == 'failed':
+                            file_path = spec.get('file') or suite.get('file')
+                            if not file_path and parent_suite:
+                                file_path = parent_suite.get('file')
+                            if not file_path:
+                                file_path = 'unknown'
+
+                            failures.append({
+                                'title': spec.get('title', 'Unknown test'),
+                                'file': file_path,
+                                'error': result.get('error', {}).get('message', ''),
+                                'duration': result.get('duration', 0),
+                                'browser': test.get('projectName', 'chromium'),
+                            })
+
+    walk_suites(data.get('suites', []))
     return failures
 
 
