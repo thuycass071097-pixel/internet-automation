@@ -45,7 +45,18 @@ jobs:
 
       - name: Upload test artifacts
         if: always()   # Luôn upload dù pass hay fail
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4        - name: Chạy Playwright tests
+          id: run_tests
+          run: |
+            set +e
+            npx playwright test ...
+            status=$?
+            echo "failed=$status" >> "$GITHUB_OUTPUT"
+            exit $status
+        
+        - name: Upload test artifacts
+          if: always()
+          ...
         with:
           name: playwright-results
           path: |
