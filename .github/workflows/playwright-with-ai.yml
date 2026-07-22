@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     # Chỉ chạy khi job test có failure
-    if: needs.test.outputs.test_failed != '0'
+    if: steps.run_tests.outputs.failed != '0'
 
     # Cần quyền để tạo issue
     permissions:
