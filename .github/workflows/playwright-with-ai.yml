@@ -34,29 +34,16 @@ jobs:
         # continue-on-error: true để job không dừng, job 2 vẫn chạy
         continue-on-error: true
         run: |
-          set +e
           npx playwright test \
             --reporter=list \
             --reporter=json:test-results.json \
             --reporter=html
-          status=$?
-          echo "failed=$status" >> "$GITHUB_OUTPUT"
-          exit $status
+          # Lưu exit code vào output
+          echo "failed=$?" >> $GITHUB_OUTPUT
 
       - name: Upload test artifacts
         if: always()   # Luôn upload dù pass hay fail
-        uses: actions/upload-artifact@v4        - name: Chạy Playwright tests
-          id: run_tests
-          run: |
-            set +e
-            npx playwright test ...
-            status=$?
-            echo "failed=$status" >> "$GITHUB_OUTPUT"
-            exit $status
-        
-        - name: Upload test artifacts
-          if: always()
-          ...
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-results
           path: |
@@ -70,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     # Chỉ chạy khi job test có failure
-    if: ${{ always() && needs.test.result != 'success' && needs.test.outputs.test_failed != '0' }}
+    if: needs.test.outputs.test_failed != '0'
 
     # Cần quyền để tạo issue
     permissions:
@@ -101,14 +88,6 @@ jobs:
           GITHUB_REF_NAME: ${{ github.ref_name }}
           GITHUB_SHA: ${{ github.sha }}
         run: python scripts/create_issue_from_failure.py
-
-      - name: Log debug info
-        if: always()
-        run: |
-          echo "needs.test.result = ${{ needs.test.result }}"
-          echo "needs.test.outputs.test_failed = ${{ needs.test.outputs.test_failed }}"
-          echo "github.ref_name = ${{ github.ref_name }}"
-          echo "github.sha = ${{ github.sha }}"
 
       - name: Post summary lên job
         if: always()
